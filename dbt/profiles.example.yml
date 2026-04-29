@@ -1,0 +1,55 @@
+# Example dbt profiles.yml.
+#
+# DO NOT commit your real profiles.yml with credentials. Copy this file to
+# either ~/.dbt/profiles.yml (preferred) or DBT_PROFILES_DIR and replace the
+# placeholder values, ideally via environment variables as shown below.
+#
+# Reference: https://docs.getdbt.com/docs/core/connect-data-platform/profiles.yml
+
+modern_data_platform:
+  target: dev
+  outputs:
+
+    # ----- Local / development -----
+    dev:
+      type: postgres
+      host: "{{ env_var('WAREHOUSE_HOST', 'localhost') }}"
+      port: "{{ env_var('WAREHOUSE_PORT', '5432') | int }}"
+      user: "{{ env_var('WAREHOUSE_USER', 'dbt') }}"
+      password: "{{ env_var('WAREHOUSE_PASSWORD') }}"
+      dbname: "{{ env_var('WAREHOUSE_DB', 'analytics') }}"
+      schema: "{{ env_var('DBT_SCHEMA', 'dev') }}"
+      threads: 4
+      keepalives_idle: 0
+
+    # ----- Production -----
+    # Same shape as dev, but pointed at the production warehouse and run
+    # under a service account. Connection details should come from the
+    # secrets backend, not from this file.
+    prod:
+      type: postgres
+      host: "{{ env_var('WAREHOUSE_HOST') }}"
+      port: "{{ env_var('WAREHOUSE_PORT') | int }}"
+      user: "{{ env_var('WAREHOUSE_USER') }}"
+      password: "{{ env_var('WAREHOUSE_PASSWORD') }}"
+      dbname: "{{ env_var('WAREHOUSE_DB') }}"
+      schema: "analytics"
+      threads: 8
+      keepalives_idle: 0
+
+# ---------------------------------------------------------------------------
+# Snowflake template (uncomment and adapt if you target Snowflake)
+# ---------------------------------------------------------------------------
+# modern_data_platform:
+#   target: dev
+#   outputs:
+#     dev:
+#       type: snowflake
+#       account:   "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+#       user:      "{{ env_var('SNOWFLAKE_USER') }}"
+#       password:  "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+#       role:      "{{ env_var('SNOWFLAKE_ROLE',     'TRANSFORMER') }}"
+#       database:  "{{ env_var('SNOWFLAKE_DATABASE', 'ANALYTICS') }}"
+#       warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'TRANSFORMING') }}"
+#       schema:    "{{ env_var('DBT_SCHEMA', 'DEV') }}"
+#       threads: 8
