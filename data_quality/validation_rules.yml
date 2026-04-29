@@ -1,0 +1,35 @@
+# In-flight validation rules consumed by scripts/sample_ingestion.py.
+# Keys correspond to the logical source name passed via --source-name.
+#
+# Supported rule types (current implementation):
+#   - not_null:   list of columns that must be non-null in every row;
+#                 violating rows are dropped and counted as "rejected".
+#
+# Future rule types (planned):
+#   - unique:        primary-key uniqueness check within batch
+#   - allowed_values: enumerated value enforcement
+#   - regex:         pattern match for strings
+#   - range:         min/max numeric bounds
+
+customers:
+  not_null:
+    - id
+    - email
+    - updated_at
+
+orders:
+  not_null:
+    - order_id
+    - customer_id
+    - order_status
+    - ordered_at
+    - updated_at
+
+order_items:
+  not_null:
+    - order_item_id
+    - order_id
+    - product_id
+    - quantity
+    - unit_price
+    - updated_at
