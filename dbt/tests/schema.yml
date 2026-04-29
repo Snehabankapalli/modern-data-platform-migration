@@ -1,0 +1,91 @@
+version: 2
+
+sources:
+  - name: legacy
+    description: "Raw, append-only landing zone populated by sample_ingestion.py"
+    schema: raw
+    tables:
+      - name: legacy_customers
+        loaded_at_field: _ingested_at
+        freshness:
+          warn_after: { count: 6, period: hour }
+          error_after: { count: 24, period: hour }
+      - name: legacy_orders
+        loaded_at_field: _ingested_at
+        freshness:
+          warn_after: { count: 2, period: hour }
+          error_after: { count: 6, period: hour }
+      - name: legacy_order_items
+        loaded_at_field: _ingested_at
+        freshness:
+          warn_after: { count: 2, period: hour }
+          error_after: { count: 6, period: hour }
+
+models:
+  - name: stg_customers
+    description: "Cleaned, typed customer rows from the legacy system."
+    columns:
+      - name: customer_id
+        description: "Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: email
+        tests:
+          - not_null
+
+  - name: stg_orders
+    description: "Cleaned, typed order rows."
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['pending', 'paid', 'shipped', 'cancelled', 'refunded']
+
+  - name: stg_order_items
+    description: "Cleaned, typed order line items."
+    columns:
+      - name: order_item_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+
+  - name: int_orders_enriched
+    description: "Orders joined with customer and aggregated line items."
+    columns:
+      - name: order_id
+        tests: [not_null, unique]
+
+  - name: fct_orders
+    description: "Consumer-facing orders fact."
+    columns:
+      - name: order_id
+        tests: [not_null, unique]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+
+  - name: dim_customers
+    description: "Customer dimension with lifetime aggregates."
+    columns:
+      - name: customer_id
+        tests: [not_null, unique]
