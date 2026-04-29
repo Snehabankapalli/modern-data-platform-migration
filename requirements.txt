@@ -1,0 +1,30 @@
+# Runtime dependencies for scripts/ and the Airflow DAG.
+# Pin minor versions to keep CI reproducible; bump deliberately.
+
+# --- Ingestion script (scripts/sample_ingestion.py) ---
+pandas>=2.1,<2.3
+SQLAlchemy>=2.0,<2.1
+PyYAML>=6.0,<7.0
+
+# Database drivers (install only what you need for your sources/warehouse)
+psycopg2-binary>=2.9,<3.0   # Postgres source / warehouse
+# pymysql>=1.1,<2.0          # MySQL source
+# snowflake-sqlalchemy>=1.6  # Snowflake warehouse
+# google-cloud-bigquery>=3.20  # BigQuery warehouse
+
+# --- Orchestration (airflow/dags/legacy_to_modern_pipeline.py) ---
+# Airflow is environment-managed in production; pin to your deployment's
+# version. The constraint below is illustrative.
+apache-airflow>=2.9,<3.0
+
+# --- Transformation ---
+# dbt core + adapter. Choose one adapter for your warehouse.
+dbt-core>=1.7,<1.9
+dbt-postgres>=1.7,<1.9
+# dbt-snowflake>=1.7,<1.9
+# dbt-bigquery>=1.7,<1.9
+
+# --- Dev / CI tooling (optional) ---
+# ruff>=0.5
+# pytest>=8.0
+# mypy>=1.10
