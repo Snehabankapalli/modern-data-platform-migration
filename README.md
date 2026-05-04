@@ -23,6 +23,8 @@ This repo provides the patterns and implementation for migrating off that stack 
 
 ## Architecture
 
+![Architecture Diagram](architecture/architecture.svg)
+
 ```
 BEFORE (Legacy)                     AFTER (Modern)
 ────────────────                    ──────────────────────────────────────
